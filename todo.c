@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
-#include "repo/repo.h"
+#include "repos/repo.h"
 
 #define TODO_FILE "todoList.bin"
 
@@ -13,6 +13,9 @@ struct Task
     bool completed;
 };
 
+void listsTasks();
+void markTaskAsCompleted();
+void addTask(char description[]);
 void printTasks(struct Task *tasks, int taskCount);
 bool isNumber(const char number[]);
 
@@ -22,14 +25,10 @@ int main(int argc, char *argv[])
     {
         if (strcmp(argv[i], "-add") == 0)
         {
-            // TODO: Also check for whitespace
-            if (argv[i + 1] == NULL || strcmp(argv[i + 1], "") == 0)
-            {
-                printf("Please provide a description for the task\n");
-                return 0;
-            }
+            char *description = argv[i + 1];
 
-            addTask(argv[i + 1]);
+            addTask(description);
+
             return 0;
         }
 
@@ -41,26 +40,58 @@ int main(int argc, char *argv[])
                 return 0;
             }
 
-            int taskCount;
-            struct Task *tasks = loadAllTasks(&taskCount);
+            int taskNumber = atoi(argv[i + 1]);
 
-            completeTask(tasks, taskCount, atoi(argv[i + 1]));
+            markTaskAsCompleted(taskNumber);
 
             return 0;
         }
 
         if (strcmp(argv[i], "-list") == 0)
         {
-            int taskCount;
-            struct Task *tasks = loadAllTasks(&taskCount);
-            printTasks(tasks, taskCount);
-            free(tasks);
+            listsTasks();
+
             return 0;
         }
     }
 
     printf("Please provide an argument");
+
     return 0;
+}
+
+void listsTasks()
+{
+    int taskCount;
+
+    struct Task *tasks = readAll(&taskCount);
+
+    printTasks(tasks, taskCount);
+
+    free(tasks);
+}
+
+void markTaskAsCompleted(int taskNumber)
+{
+    struct Task *task = read(taskNumber);
+
+    task->completed = true;
+
+    update(task, taskNumber);
+
+    free(task);
+}
+
+void addTask(char description[])
+{
+    // TODO: Also check for whitespace
+    if (description == NULL || strcmp(description, "") == 0)
+    {
+        printf("Please provide a description for the task\n");
+        return;
+    }
+
+    create(description);
 }
 
 void printTasks(struct Task *tasks, int taskCount)
@@ -69,9 +100,13 @@ void printTasks(struct Task *tasks, int taskCount)
     {
         // Print with strikethrough
         if (tasks[i].completed)
+        {
             printf("%d: \033[9m%s\033[0m\n", i + 1, tasks[i].description);
+        }
         else
+        {
             printf("%d: %s\n", i + 1, tasks[i].description);
+        }
     }
 }
 
