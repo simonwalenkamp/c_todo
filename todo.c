@@ -13,10 +13,10 @@ struct Task
     bool completed;
 };
 
-void listsTasks();
-void markTaskAsCompleted();
+void listTasks(bool completed);
+void markTaskAsCompleted(int taskNumber);
 void addTask(char description[]);
-void printTasks(struct Task *tasks, int taskCount);
+void printTasks(struct Task *tasks, int taskCount, bool completed);
 bool isNumber(const char number[]);
 
 int main(int argc, char *argv[])
@@ -49,7 +49,14 @@ int main(int argc, char *argv[])
 
         if (strcmp(argv[i], "-list") == 0)
         {
-            listsTasks();
+            bool completed = false;
+
+            if (argv[i + 1] != NULL && strcmp(argv[i + 1], "--completed") == 0)
+            {
+                completed = true;
+            }
+
+            listTasks(completed);
 
             return 0;
         }
@@ -60,13 +67,13 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void listsTasks()
+void listTasks(bool completed)
 {
     int taskCount;
 
     struct Task *tasks = readAll(&taskCount);
 
-    printTasks(tasks, taskCount);
+    printTasks(tasks, taskCount, completed);
 
     free(tasks);
 }
@@ -94,13 +101,18 @@ void addTask(char description[])
     create(description);
 }
 
-void printTasks(struct Task *tasks, int taskCount)
+void printTasks(struct Task *tasks, int taskCount, bool completed)
 {
     for (int i = 0; i < taskCount; i++)
     {
         // Print with strikethrough
         if (tasks[i].completed)
         {
+            if (!completed)
+            {
+                continue;
+            }
+
             printf("%d: \033[9m%s\033[0m\n", i + 1, tasks[i].description);
         }
         else
