@@ -94,23 +94,12 @@ struct Task *readAll(int *taskCount)
 
 void update(struct Task *task, int taskNumber)
 {
-    int taskCount;
-    struct Task *tasks = readAll(&taskCount);
+    FILE *file = fopen(TODO_FILE, "rb+");
 
-    // Convert 1-indexed task number to 0-indexed array index
-    int index = taskNumber - 1;
-    if (index < 0 || index >= taskCount)
-    {
-        printf("Task number %d does not exist.\n", taskNumber);
-        return;
-    }
+    // Sets the file position of the stream to the given offset
+    fseek(file, (taskNumber - 1) * sizeof(struct Task), SEEK_SET);
 
-    tasks[index] = *task;
-
-    // Open the file in write mode to update all tasks
-    FILE *file = fopen(TODO_FILE, "wb");
-
-    fwrite(tasks, sizeof(struct Task), taskCount, file);
+    fwrite(task, sizeof(struct Task), 1, file);
 
     fclose(file);
 }
