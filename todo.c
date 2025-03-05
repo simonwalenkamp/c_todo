@@ -6,8 +6,6 @@
 #include "repos/repo.h"
 #include "models/task.h "
 
-#define TODO_FILE "todoList.bin"
-
 void listTasks(bool completed);
 void markTaskAsCompleted(int taskNumber);
 void addTask(char description[]);
