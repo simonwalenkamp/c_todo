@@ -4,14 +4,9 @@
 #include <stdbool.h>
 #include <ctype.h>
 #include "repos/repo.h"
+#include "models/task.h "
 
 #define TODO_FILE "todoList.bin"
-
-struct Task
-{
-    char description[256];
-    bool completed;
-};
 
 void listTasks(bool completed);
 void markTaskAsCompleted(int taskNumber);
